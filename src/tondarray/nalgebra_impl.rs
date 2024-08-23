@@ -2,9 +2,7 @@
 
 use super::*;
 use nalgebra::{
-    dimension::U1,
-    storage::{Storage, StorageMut},
-    Dim, Matrix, Scalar, SliceStorage, SliceStorageMut, Vector,
+    dimension::U1, storage::{Storage, StorageMut}, Dim, Matrix, Scalar, Vector, ViewStorage, ViewStorageMut
 };
 use ndarray::{ArrayView1, ArrayView2, ArrayViewMut1, ArrayViewMut2, ShapeBuilder};
 
@@ -64,31 +62,6 @@ where
     }
 }
 
-/// ```
-/// use nshare::ToNdarray1;
-/// use nalgebra::Vector4;
-///
-/// let m = Vector4::new(
-///     0.1, 0.2, 0.3, 0.4f32,
-/// );
-/// let arr = m.rows(0, 4).into_ndarray1();
-/// assert!(arr.iter().eq(&[0.1, 0.2, 0.3, 0.4]));
-/// assert_eq!(arr.dim(), 4);
-/// ```
-impl<'a, N: Scalar, R: Dim, RStride: Dim, CStride: Dim> ToNdarray1
-    for Vector<N, R, SliceStorage<'a, N, R, U1, RStride, CStride>>
-{
-    type Out = ArrayView1<'a, N>;
-
-    fn into_ndarray1(self) -> Self::Out {
-        unsafe {
-            ArrayView1::from_shape_ptr(
-                (self.shape().0,).strides((self.strides().0,)),
-                self.as_ptr(),
-            )
-        }
-    }
-}
 
 /// ```
 /// use nshare::ToNdarray1;
@@ -101,7 +74,7 @@ impl<'a, N: Scalar, R: Dim, RStride: Dim, CStride: Dim> ToNdarray1
 /// assert!(m.iter().eq(&[0.0, 0.2, 0.0, 0.4]));
 /// ```
 impl<'a, N: Scalar, R: Dim, RStride: Dim, CStride: Dim> ToNdarray1
-    for Matrix<N, R, U1, SliceStorageMut<'a, N, R, U1, RStride, CStride>>
+    for Matrix<N, R, U1, ViewStorageMut<'a, N, R, U1, RStride, CStride>>
 {
     type Out = ArrayViewMut1<'a, N>;
 
@@ -186,7 +159,7 @@ where
 /// assert_eq!(arr.dim(), (1, 4));
 /// ```
 impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> ToNdarray2
-    for Matrix<N, R, C, SliceStorage<'a, N, R, C, RStride, CStride>>
+    for Matrix<N, R, C, ViewStorage<'a, N, R, C, RStride, CStride>>
 {
     type Out = ArrayView2<'a, N>;
 
@@ -209,7 +182,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> ToNdarray2
 /// assert!(m.row(1).iter().eq(&[0.0; 4]));
 /// ```
 impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> ToNdarray2
-    for Matrix<N, R, C, SliceStorageMut<'a, N, R, C, RStride, CStride>>
+    for Matrix<N, R, C, ViewStorageMut<'a, N, R, C, RStride, CStride>>
 {
     type Out = ArrayViewMut2<'a, N>;
 
